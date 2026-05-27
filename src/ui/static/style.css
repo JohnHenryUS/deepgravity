@@ -773,6 +773,15 @@ body {
     color: var(--text-bright);
     border-bottom-right-radius: 2px;
 }
+.message.user p {
+    margin: 0.3em 0;
+}
+.message.user p:first-child {
+    margin-top: 0;
+}
+.message.user p:last-child {
+    margin-bottom: 0;
+}
 .message.assistant {
     align-self: flex-start;
     background: var(--bg-active);

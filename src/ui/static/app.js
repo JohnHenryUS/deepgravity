@@ -692,6 +692,26 @@ status: draft
         loadWorkspaceTree(); // Automatically refresh file tree on session completion
     }
 
+    // Light renderer for user messages — escapes HTML, preserves line breaks, basic inline formatting
+    function renderUserMessage(text) {
+        if (!text) return "";
+        // Escape HTML
+        let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        // Inline code (must come before other inline formatting)
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        // Bold and italic
+        html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        // Links
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+        // Line breaks (two newlines = paragraph, single = <br>)
+        html = html.replace(/\n\n/g, '</p><p>');
+        html = html.replace(/\n/g, '<br>');
+        html = '<p>' + html + '</p>';
+        return html;
+    }
+
     // Markdown renderer for assistant messages (uses marked if available)
     function renderMarkdown(text) {
         if (!text) return "";
@@ -746,7 +766,7 @@ status: draft
         // Append user bubble to messages
         const userBubble = document.createElement("div");
         userBubble.className = "message user";
-        userBubble.textContent = text;
+        userBubble.innerHTML = renderUserMessage(text);
         chatMessages.appendChild(userBubble);
         // Add edit toolbar to user message
         addMessageToolbar(userBubble, "user", { text });

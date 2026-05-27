@@ -1,8 +1,9 @@
 # DeepGravity: Sovereign Agentic Coding Harness
 
 **Version**: 0.1.0-alpha  
-**Status**: PLANNING / ARCHITECTURE LOCKED  
-**Objective**: Build a local, lightweight, sovereign agentic coding loop that runs natively on Windows/Powershell. The orchestrator must be entirely API-agnostic, supporting both cloud endpoints (DeepSeek, OpenAI, Groq) and local model stacks (Ollama, LM Studio, llama.cpp) via standard OpenAI-compatible API schemas.
+**Status**: ARCHITECTURE LOCKED — PHASE 5 IN PROGRESS  
+**Objective**: Build a local, lightweight, sovereign agentic coding loop that runs natively on Windows/Powershell. The orchestrator must be entirely API-agnostic, supporting both cloud endpoints (DeepSeek, OpenAI, Groq) and local model stacks (Ollama, LM Studio, llama.cpp) via standard OpenAI-compatible API schemas.  
+**Editor Shell**: Forked VS Codium — stripped, frozen, sovereign. No upstream tracking. No marketplace. No telemetry.
 
 ---
 
@@ -85,7 +86,7 @@ To match the precision of Antigravity, DeepGravity will expose a minimal, high-l
 ## 4. The Dora Core & Prompt Hydration
 
 DeepGravity will automatically inject local sovereign identity files at startup:
-*   **System Prompt**: Ingests `J:\My Drive\DORA_CORE.md` (if available) or a local cached backup in `config/system_prompt.txt`.
+*   **System Prompt**: Ingests `D:\doraheart\DORA_CORE.md` (if available) or a local cached backup in `config/system_prompt.txt`.
 *   **Global Rules**: Direct injection of the user global rules (attunement style, dot game mechanics, no-clamp directives, CSA integration stance).
 *   **State Injection**: Reads the active workspace `ACTIVE_BRAID.md` and appends it to the context window at the start of each session, ensuring total continuity.
 
@@ -115,9 +116,58 @@ Once authorized, implementation will proceed in four distinct phases:
 *   [ ] Test deployment scripts (Sovereign Engine Wordpress publishing) using the local/cloud LLM provider.
 *   [ ] Final verification: run side-by-side with Antigravity to ensure response latency, tool call accuracy, and attunement match specifications.
 
+### Phase 4.5: Contract Layer (Completed)
+*   [x] `contract.py` — WorkContract, ContractMonitor, SpinningDetector guardrail system.
+*   [x] Scripts/ launchers (start_console.py, start_ide.py, watchtower.ps1).
+*   [x] Engine selector dropdown, path enforcement, split-view layout fix, preview toggle.
+
+### Phase 5: VS Codium Fork & Sovereign Shell (Est: 1-2 Weeks)
+
+**Decision:** Fork VS Codium as the DeepGravity editor shell. Freeze at a known stable base and do not track upstream. The editor is a delivery vehicle for the agent, not a general-purpose IDE.
+
+#### 5A. Fork & Strip
+*   [ ] Fork [VSCodium/vscodium](https://github.com/VSCodium/vscodium) to DeepGravity org.
+*   [ ] Strip marketplace integration, accounts panel, Live Share, Remote SSH, all collaboration surfaces, telemetry endpoints.
+*   [ ] Remove bundled extension gallery — no extension search, no install from gallery UI.
+*   [ ] Verify standalone build runs on Windows with zero network calls.
+
+#### 5B. Local Extension Loader
+*   [ ] Replace marketplace with a local directory scan: `D:\doraheart\Sovereign_Tools\extensions\` (configurable in `config.json`).
+*   [ ] Load `.vsix` packages and unpacked extension directories from that path at startup.
+*   [ ] Ship a minimal core extension bundle: Python grammar, Markdown grammar, JSON grammar, git SCM (pinned copies, no update path needed).
+
+#### 5C. Theme System
+*   [ ] Replace gallery theme install with local directory scan: `deepgravity/themes/` in workspace root.
+*   [ ] Ship three built-in themes:
+    *   **Dark** — standard dark editor theme.
+    *   **Light** — standard light editor theme.
+    *   **Dora** — royal blues, satin blues, glassmorphism/satin-glass UI styling.
+*   [ ] Any valid `.json` color theme file dropped in the themes directory appears automatically in the theme switcher dropdown. No installation step.
+
+#### 5D. Theme Builder (Optional Enhancement)
+*   [ ] Command: "DeepGravity: Open Theme Builder" — live preview split panel, color swatch editor, instant apply.
+*   [ ] Export as `.json` theme file to the themes directory.
+
+#### 5E. Workspace Persistence
+*   [ ] Default workspace root = `config.json` `workspace.root_path` variable.
+*   [ ] "Last open workspace" — save to `config/last_workspace.json`, restore on startup.
+*   [ ] User toggle preference for workspace selection behavior (settings sheet later).
+
+#### 5F. Image Pipeline Integration
+*   [ ] Wire Stable Diffusion endpoint (`192.168.0.32:7860`) as a local tool provider.
+*   [ ] Image drop/paste ingestion for RAG context.
+
 ---
 
-## 6. Safe Deployment Protocol (The Validation Diffs)
+## 6. License
+
+DeepGravity is released under the **MIT License**. See `LICENSE` for details.
+
+*Note: This license is applied retroactively to all prior commits in this repository. Earlier omissions were administrative oversights and are hereby corrected. All code in the commit history is governed by the same terms.*
+
+---
+
+## 7. Safe Deployment Protocol (The Validation Diffs)
 
 Every tool execution that alters state (writes, edits, shell commands) must present this CLI validation card before execution:
 

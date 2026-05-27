@@ -32,6 +32,90 @@ active_websocket: Optional[WebSocket] = None
 active_loop: Optional[asyncio.AbstractEventLoop] = None
 active_log_websockets = set()
 
+# ── Resilient approval fallbacks ────────────────────────────────────
+# When a WebSocket disconnects mid-tool-call, these replace the live
+# callbacks so the safety layer waits for reconnection instead of
+# falling through to CLI input().
+
+REASONABLE_TIMEOUT = 45.0  # seconds to wait for WS reconnection
+
+def _wait_for_reconnect() -> bool:
+    """Poll for a new WebSocket connection. Returns True if connected within timeout."""
+    waited = 0.0
+    step = 0.5
+    while waited < REASONABLE_TIMEOUT:
+        ws = active_websocket
+        q = active_approval_queue
+        if ws is not None and q is not None:
+            return True
+        import time
+        time.sleep(step)
+        waited += step
+    return False
+
+def _resilient_cmd_approval(command: str, cwd: str) -> bool:
+    if not _wait_for_reconnect():
+        return False  # timeout → safe-deny
+    ws, q, lp = active_websocket, active_approval_queue, active_loop
+    if ws is None or q is None or lp is None:
+        return False
+    asyncio.run_coroutine_threadsafe(
+        ws.send_json({
+            "type": "approval_required",
+            "action": "command",
+            "command": command,
+            "cwd": cwd
+        }),
+        lp
+    )
+    try:
+        return q.get(timeout=REASONABLE_TIMEOUT)
+    except Exception:
+        return False
+
+def _resilient_write_approval(file_path: str, old_content: str, new_content: str, is_new: bool = False) -> bool:
+    if not _wait_for_reconnect():
+        return False
+    ws, q, lp = active_websocket, active_approval_queue, active_loop
+    if ws is None or q is None or lp is None:
+        return False
+    diff = ""
+    if not is_new:
+        old_lines = old_content.splitlines()
+        new_lines = new_content.splitlines()
+        diff_lines = difflib.unified_diff(
+            old_lines, new_lines,
+            fromfile=f"a/{file_path}",
+            tofile=f"b/{file_path}",
+            lineterm=""
+        )
+        diff = "\n".join(diff_lines)
+    asyncio.run_coroutine_threadsafe(
+        ws.send_json({
+            "type": "approval_required",
+            "action": "write",
+            "file_path": file_path,
+            "is_new": is_new,
+            "diff": diff,
+            "new_content_preview": new_content[:1500]
+        }),
+        lp
+    )
+    try:
+        return q.get(timeout=REASONABLE_TIMEOUT)
+    except Exception:
+        return False
+
+def _resilient_open_file(file_path: str) -> None:
+    ws = active_websocket
+    lp = active_loop
+    if ws is None or lp is None:
+        return
+    asyncio.run_coroutine_threadsafe(
+        ws.send_json({"type": "open_file", "path": file_path}),
+        lp
+    )
+
 def broadcast_log(message: str):
     if not active_log_websockets or not active_loop:
         return
@@ -192,10 +276,11 @@ def run_chat_worker(msg_queue: queue.Queue, loop: asyncio.AbstractEventLoop, web
             finally:
                 msg_queue.task_done()
     finally:
-        # Clean callbacks
-        orchestrator.guardrails.command_approval_callback = None
-        orchestrator.guardrails.write_approval_callback = None
-        orchestrator.guardrails.open_file_callback = None
+        # On disconnect: replace callbacks with resilient fallbacks that
+        # wait for WebSocket reconnection instead of falling through to CLI input().
+        orchestrator.guardrails.command_approval_callback = _resilient_cmd_approval
+        orchestrator.guardrails.write_approval_callback = _resilient_write_approval
+        orchestrator.guardrails.open_file_callback = _resilient_open_file
 
 @app.websocket("/ws/chat")
 async def websocket_chat(websocket: WebSocket):
