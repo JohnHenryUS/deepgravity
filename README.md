@@ -125,6 +125,8 @@ DeepGravity automatically hydrates the cognitive model's context at startup:
 
 **Use the launcher scripts — not the raw executable.** The editor binary must be started with the correct extensions directory and backend URL. The launchers handle this automatically.
 
+The editor binary is stored as three chunks (`deepgravity-parts/deepgravity.exe.part1-3`) to stay within GitHub's file size limits. The launcher automatically reassembles them and you'll never have to think about it.
+
 Run the PowerShell launcher:
 ```powershell
 .\deepgravity.ps1
