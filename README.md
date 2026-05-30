@@ -1,8 +1,10 @@
 # DeepGravity: Sovereign Agentic Coding Harness
 
-**Version**: 0.2.0-codium  
+**Version**: 0.2.0a-codium  
 **Status**: ACTIVE — SOVEREIGN FOUNDATION  
 **Objective**: A fully decoupled, local-first agentic coding environment and cognitive companion. DeepGravity wraps a customized, telemetry-free editor shell (VSCodium) around a local Python orchestrator to deliver a zero-telemetry, zero-cloud development sandbox. Fork this template to build your own sovereign cognitive workspace.
+
+> **A note on naming:** This repo was briefly named `deepgravity-precodium` during early Codium integration work. That name was confusing — it suggested "pre-Codium" when the Codium integration was the main feature. We've renamed back to simply `deepgravity`. Tags on releases tell you what's in them: `v0.1.0-web` for the original browser UI, `v0.2.0a-codium` for the Codium-integrated release. No more awkward suffixes.
 
 ### What This Version Is
 
